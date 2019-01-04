@@ -1,6 +1,5 @@
--- Photo StatLr plug-in
-require "CSDialogs.lua"
 require "CSInit.lua"
+
 --============================================================================--
 
 local function sectionsForTopOfDialog( f, _ )
