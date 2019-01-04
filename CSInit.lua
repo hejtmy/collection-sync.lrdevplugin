@@ -1,5 +1,5 @@
 CSInit = {
-	DefaultFolder = "FotkyRaw/Archive/2018/2018-Branik",
-	DefaultCollection = "Archive/Test/2018-Branik",
+	DefaultFolder = "Photos/Boardgames/2017/2017-Davis",
+	DefaultCollection = "Boardgames/2017/2017-Davis",
 	recursive = 1,
 }

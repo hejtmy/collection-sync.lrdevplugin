@@ -32,30 +32,27 @@ CSHelpers.findFolder = function(context, folder, recursive)
 	return syncFolder
 end
 
-CSHelpers.findCollection = function(context, folder, isSet)
+CSHelpers.findOrCreateCollectionTree = function(context, collection, isTopLevel)
 	LrDialogs.attachErrorDialogToFunctionContext( context )
 	local catalog = import "LrApplication".activeCatalog()
-	collectionsArr = Helpers.mysplit(folder, '/')
+	collectionsNames = Helpers.mysplit(collection, '/')
 	local syncCollection = nil
 	-- Gets immediately collections in case we are in the topLevel
-	if #collectionsArr == 1 then collections = catalog:getChildCollections() else collections = catalog:getChildCollectionSets() end
-	for iCollection = 1, #collectionsArr do
-		topCollection = collectionsArr[iCollection]
-		outputToLog('topCollection-' .. topCollection )
-		syncCollection = nil
-		for k, v in ipairs(collections) do
-			if v:getName() == topCollection then
-				outputToLog('collectionName-' .. v:getName())
-				syncCollection = v
-				-- flows to collections in case we are in the last "set" 
-				if iCollection == #collectionsArr-1 then collections = v:getChildCollections() else collections = v:getChildCollectionSets() end
-				break
-			end
-		end
-		if syncCollection == nil then 
-			-- create collection set if not last or if isSet is 1
-			-- create collection if last
-		end
+	for iCollection = 1, #collectionsNames do
+		name = collectionsNames[iCollection]
+		local isSet = isTopLevel or iCollection ~= #collectionsNames-1
+		catalog:withWriteAccessDo('creatingCollectionSet', function( context ) 
+			syncCollection = CSHelpers.getOrCreateCollectionOrSet(catalog, syncCollection, name, isSet)
+		end ) 
 	end
 	return syncCollection
+end
+
+
+CSHelpers.getCollectionOrSet = function(catalog, isSet)
+	if isSet then return catalog:getChildCollectionsSets() else return catalog:getChildCollections() end
+end
+
+CSHelpers.getOrCreateCollectionOrSet = function(catalog, parent, name, isSet)
+	if isSet then return catalog:createCollectionSet(name, parent, true) else return catalog:createCollection(name, parent, true) end
 end
