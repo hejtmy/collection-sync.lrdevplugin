@@ -5,10 +5,33 @@ require "CSInit.lua"
 --============================================================================--
 
 local function sectionsForTopOfDialog( f, _ )
-	return {
+	
+	local testInclude = function()
+		local result = f:static_text {
+			title ="asldkaůskj",
+		}
+		return result
+	end
+
+	local singleTree = function()
+		return f:static_text {
+			title = "One Sync Tree",
+		}
+	end
+
+	local includedTrees = function() -- doesn't work
+		section = {}
+		for i = 1, 5 do
+			section[#section+1] = singleTree()
+		end
+		return section
+	end
+
+
+
+	result = {
 			-- Section for the top of the dialog.
-			{
-				title = LOC "$$$/Collection Sync/PluginManager=Collection sync settings",
+				title = LOC "$$$/CollectionSync/PluginManager=Collection sync settings",
 				f:row {
 					spacing = f:control_spacing(),
 
@@ -19,7 +42,7 @@ local function sectionsForTopOfDialog( f, _ )
 
 					f:push_button {
 						width = 150,
-						title = LOC "$$$/Collection Sync/ButtonTitle=Tutorial",
+						title = LOC "$$$/CollectionSync/ButtonTitle=Tutorial",
 						enabled = true,
 						action = function()
 							LrHttp.openUrlInBrowser( CSInit.TutorialURL )
@@ -29,7 +52,7 @@ local function sectionsForTopOfDialog( f, _ )
 
 				f:row {
 					f:static_text {
-						title = LOC "$$$/CustomMetadata/Pair=Added pairs: ",
+						title = LOC "$$$/CollectionSync/Pair=Added pairs: ",
 					},
 				},
 				f:row{
@@ -42,8 +65,12 @@ local function sectionsForTopOfDialog( f, _ )
 						fill_horizontal = 1,
 					},
 				},
-			},
+				f:group_box{
+					fill_horizontal = 1,
+					unpack(includedTrees())
+				}
 		}
+		return {result}
 end
 
 return {
