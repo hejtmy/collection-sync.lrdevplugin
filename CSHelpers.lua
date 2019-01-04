@@ -40,7 +40,7 @@ CSHelpers.findOrCreateCollectionTree = function(context, collection, isTopLevel)
 	-- Gets immediately collections in case we are in the topLevel
 	for iCollection = 1, #collectionsNames do
 		name = collectionsNames[iCollection]
-		local isSet = isTopLevel or iCollection ~= #collectionsNames-1
+		local isSet = isTopLevel or iCollection ~= #collectionsNames
 		catalog:withWriteAccessDo('creatingCollectionSet', function( context ) 
 			syncCollection = CSHelpers.getOrCreateCollectionOrSet(catalog, syncCollection, name, isSet)
 		end ) 
