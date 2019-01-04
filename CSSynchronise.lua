@@ -43,14 +43,16 @@ CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, colle
 	end})
 end
 
-CSSynchronise.RecursiveFolderSync = function(context, topFolder, rootFolderPath, rootCollectionPath)
-	outputToLog("folder name " .. topFolder:getPath())
-	local folders = topFolder:getChildren()
+CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, rootCollectionPath)
+	outputToLog("folder name " .. folder:getPath())
+	local folders = folder:getChildren()
 	outputToLog("number of children" .. #folders)
 	if #folders == 0 then  -- if we are int he lowest folder
-		relativeFolderName = string.gsub(topFolder:getPath(), rootFolderPath, "")
-		outputToLog(relativeFolderName)
-		--relative to the topFolder
+		relativeFolderName = string.gsub(folder:getPath(), rootFolderPath, "")
+		relativeFolderName = string.gsub(relativeFolderName, "\\", "/") -- OS sensitive solution?
+		relativeCollectionName = rootCollectionPath .. relativeFolderName
+		local syncCollection = CSHelpers.findOrCreateCollectionTree(context, relativeCollectionName, false)
+		CSSynchronise.CopyPhotosFromFolderToCollection(context, folder, syncCollection)
 	else -- else we recusively go deeper
 		for f = 1, #folders do
 			CSSynchronise.RecursiveFolderSync(context, folders[f], rootFolderPath, rootCollectionPath)
