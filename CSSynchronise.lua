@@ -19,7 +19,8 @@ CSSynchronise.FolderToCollectionSync = function(folder, collection, recursive)
 	LrTasks.startAsyncTask(function()
 		LrFunctionContext.callWithContext( "showCustomDialogWithMultipleBind", function( context )
 			local syncFolder = CSHelpers.findFolder(context, folder, recursive)
-			if folder ~= nil then
+			local syncCollection = CSHelpers.findCollection(context, collection, recursive)
+			if syncFolder ~= nil then
 				message = "Folder present"
 				LrDialogs.message( "Title", message, "info" );
 			end
