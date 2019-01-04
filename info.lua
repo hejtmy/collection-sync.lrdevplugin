@@ -23,12 +23,16 @@ return {
 
 	LrToolkitIdentifier = 'com.hejtmy.lightroom.collection-sync',
 	LrPluginName = LOC "$$$/CollectionSync/PluginName=Collection Sync",
-
+	LrPluginInfoProvider = 'CSInfoProvider.lua',
 	LrLibraryMenuItems = {
-		title = LOC "$$$/Collection Sync/CustomDialog=Sync Files to Collections",
-		file = "main.lua"
-	}
-
-	VERSION = { major=0, minor=1, revision=0, build=0 },
-
+		{
+			title = LOC "$$$/Collection Sync/CustomDialog=Sync Files to Collections",
+			file = "main.lua"
+		},
+		{
+			title = LOC "$$$/Collection Sync/CustomDialog=Text Button",
+			file = "CSShowDialog.lua"
+		}
+	},
+	VERSION = { major=0, minor=2, revision=0, build=0 },
 }
