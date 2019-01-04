@@ -1,5 +1,5 @@
 CSInit = {
-	currentDisplayImage = "no",
-	pluginID = "com.adobe.lightroom.sdk.metadata.custommetadatasample",
-	URL = "http://www.adobe.com",
+	DefaultFolder = "FotkyRaw/2018/2018-Branik",
+	DefaultCollection = "Archive/Test/2018-Branik",
+	recursive = 1,
 }

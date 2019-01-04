@@ -3,6 +3,9 @@ local LrBinding = import 'LrBinding'
 local LrDialogs = import 'LrDialogs'
 local LrView = import 'LrView'
 
+require "CSInit.lua"
+require "CSSynchronise.lua"
+
 function folderCollectionView()
 	LrFunctionContext.callWithContext( "showCustomDialogWithMultipleBind", function( context )
 		local f = LrView.osFactory()
@@ -27,8 +30,16 @@ function folderCollectionView()
 					value = 1,
 				},
 			},
+			f:row{
+				f:push_button{
+					title = "Sync now",
+					action = function() 
+							CSSynchronise.FolderToCollectionSync(CSInit.DefaultFolder, CSInit.DefaultCollection, 1) 
+						end, -- needs to bind the checkbox
+				}
+			}
 		}
-		
+
 		LrDialogs.presentModalDialog {
 			title = "Custom Dialog Multiple Bind",
 			contents = content
