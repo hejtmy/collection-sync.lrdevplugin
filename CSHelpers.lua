@@ -1,5 +1,6 @@
 local LrDialogs = import 'LrDialogs'
 local LrLogger = import 'LrLogger'
+local LrTasks = import 'LrTasks'
 
 local syncLogger = LrLogger('syncLogger')
 syncLogger:enable( "print" ) -- Pass either a string or a table of actions.
@@ -55,4 +56,19 @@ end
 
 CSHelpers.getOrCreateCollectionOrSet = function(catalog, parent, name, isSet)
 	if isSet then return catalog:createCollectionSet(name, parent, true) else return catalog:createCollection(name, parent, true) end
+end
+
+
+CSHelpers.getPublishingServices = function()
+	LrTasks.startAsyncTask(function()
+		local catalog = import "LrApplication".activeCatalog()
+		local services = catalog:getPublishServices()
+		local items = {}
+		for i = 1, #services do
+			local service = services[i]
+			outputToLog(service:getName())
+			items[#items+1] = {title=service:getName(), value=service.localIdentifier}
+		end
+		return items
+	end)
 end

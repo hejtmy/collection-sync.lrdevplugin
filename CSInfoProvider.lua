@@ -1,33 +1,35 @@
 local LrHttp = import 'LrHttp'
 
 require "CSInit.lua"
+require "CSHelpers.lua"
 
 --============================================================================--
 
 local function sectionsForTopOfDialog( f, _ )
 	
-	local testInclude = function()
-		local result = f:static_text {
-			title ="asldkaůskj",
-		}
-		return result
-	end
-
-	local singleTree = function()
-		return f:static_text {
-			title = "One Sync Tree",
-		}
+	local singleTree = function(services)
+		local view = f:row {
+				f:edit_field {
+					value = "One Sync Tree",
+				},
+				f:static_text {
+					title = services
+				},
+				f:popup_menu{
+					items = services
+				}
+			}
+		return view
 	end
 
 	local includedTrees = function() -- doesn't work
 		section = {}
-		for i = 1, 5 do
-			section[#section+1] = singleTree()
+		local services = CSHelpers.getPublishingServices()
+		for i = 1, #CSInit.syncTrees do
+			section[#section+1] = singleTree(services)
 		end
 		return section
 	end
-
-
 
 	result = {
 			-- Section for the top of the dialog.
