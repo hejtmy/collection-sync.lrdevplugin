@@ -6,6 +6,7 @@ local bind = LrView.bind
 
 require "CSInit.lua"
 require "CSHelpers.lua"
+require "CSSynchronise.lua"
 
 local syncLogger = LrLogger('syncLogger')
 syncLogger:enable( "print" ) -- Pass either a string or a table of actions.
@@ -15,8 +16,6 @@ end
 
 --============================================================================--
 local prefs = import 'LrPrefs'.prefsForPlugin() 
-
-
 
 local function sectionsForTopOfDialog( f, propertyTable )
 	
@@ -30,7 +29,14 @@ local function sectionsForTopOfDialog( f, propertyTable )
 				f:static_text {
 					title = syncTree.rootCollection,
 					fill_horizontal = 1,
-				}
+				},
+				f:push_button {
+					title = LOC "$$$/CollectionSync/SyncButton=Sync now",
+					enabled = true,
+					action = function()
+						CSSynchronise.FolderToCollectionSync(syncTree.rootFolder, syncTree.rootCollection, 1) 
+					end,
+				},
 			}
 		return view
 	end
@@ -59,7 +65,6 @@ local function sectionsForTopOfDialog( f, propertyTable )
 						title = LOC "$$$/CollectionSync/Title1=Here is going to be some text",
 						fill_horizontal = 1,
 					},
-
 					f:push_button {
 						width = 150,
 						title = LOC "$$$/CollectionSync/ButtonTitle=Tutorial",
@@ -69,7 +74,6 @@ local function sectionsForTopOfDialog( f, propertyTable )
 						end,
 					},
 				},
-
 				f:row {
 					f:static_text {
 						title = LOC "$$$/CollectionSync/Pair=Added pairs: ",
