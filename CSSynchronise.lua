@@ -35,10 +35,17 @@ end
 
 CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, collection)
 	local photos = folder:getPhotos(false) -- don't includeChildren
+	local filteredPhotos = CSHelpers.removeVirtualCopies(photos)
+	-- removes virtual copies
 	collection.catalog:withWriteAccessDo('copytingPhotosToCollection', function(context)
-		collection:addPhotos(photos)
-	end,
-	{timeout=3, callback=function() 
+			for _, photo in ipairs(photos) do
+				outputToLog(photo:getRawMetadata('isVirtualCopy'))
+				if photo:getRawMetadata('isVirtualCopy') == false then
+					collection:addPhotos(photo)
+				end
+			end
+		end,
+		{timeout=3, callback=function() 
 		LrDialogs.message( "Title", "Photos failed to copy", "info" ) 
 	end})
 end

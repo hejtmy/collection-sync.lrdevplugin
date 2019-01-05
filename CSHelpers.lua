@@ -49,7 +49,6 @@ CSHelpers.findOrCreateCollectionTree = function(context, collection, isTopLevel)
 	return syncCollection
 end
 
-
 CSHelpers.getCollectionOrSet = function(catalog, isSet)
 	if isSet then return catalog:getChildCollectionsSets() else return catalog:getChildCollections() end
 end
@@ -57,7 +56,6 @@ end
 CSHelpers.getOrCreateCollectionOrSet = function(catalog, parent, name, isSet)
 	if isSet then return catalog:createCollectionSet(name, parent, true) else return catalog:createCollection(name, parent, true) end
 end
-
 
 CSHelpers.getPublishingServices = function()
 	LrTasks.startAsyncTask(function()
