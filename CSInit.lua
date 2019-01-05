@@ -1,3 +1,5 @@
+local prefs = import 'LrPrefs'.prefsForPlugin() 
+
 CSInit = {
 	DefaultFolder = "Photos/Boardgames/",
 	DefaultCollection = "Boardgames/",
