@@ -87,9 +87,6 @@ CSHelpers.getOrCreateCollectionOrSet = function(catalog, parent, name, isSet)
 end
 
 CSHelpers.getOrCreatePublishCollectionOrSet = function(service, parent, name, isSet)
-	outputToLog(service)
-	outputToLog(parent)
-	outputToLog(name)
 	if isSet then 
 		return service:createPublishedCollectionSet(name, parent, true)
 	else 
