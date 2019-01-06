@@ -2,6 +2,7 @@ local LrLogger = import 'LrLogger'
 local LrDialogs = import 'LrDialogs'
 local LrFunctionContext = import 'LrFunctionContext'
 local LrTasks = import 'LrTasks'
+local LrProgressScope = import 'LrProgressScope'
 
 require 'CSMessages.lua'
 require 'helpers.lua'
@@ -35,30 +36,42 @@ end
 
 CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, collection)
 	local photos = folder:getPhotos(false) -- don't includeChildren
-	-- removes virtual copies
-	collection.catalog:withWriteAccessDo('copytingPhotosToCollection', function(context)
-			for _, photo in ipairs(photos) do
-				outputToLog(photo:getRawMetadata('isVirtualCopy'))
-				if photo:getRawMetadata('isVirtualCopy') == false then
-					collection:addPhotos(photo)
-				end
-			end
-		end,
-		{timeout=5, callback=function() 
-		LrDialogs.message( "Title", "Photos failed to copy", "info" ) 
-	end})
+	local total = #photos
+	local completed = 0
+	local catalog = collection.catalog
+
+	local folderProgressScope = LrProgressScope{
+		title = "Copyting photos from folders" .. folder:getPath(),
+		caption = "Updatting " .. total .. " photos." ,
+	}
+	for i = 1, total do
+		local photo = photos[i]
+		folderProgressScope:setPortionComplete(completed, total)
+		folderProgressScope:setCaption("Updated " .. tostring(completed) .. " of " .. tostring(total) .. " photos")
+		catalog:withWriteAccessDo('copyingPhotosToCollection', function()
+			-- removes virtual copies
+			if photo:getRawMetadata('isVirtualCopy') ~= true then collection:addPhotos(photo) end
+		end)
+		LrTasks.yield()
+		completed = completed + 1
+		outputToLog(completed)
+	end
+	folderProgressScope:done()
+end
+
+CSSynchronise.CopyPhotoProlongedAction = function(context, progress)
+
 end
 
 CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, rootCollectionPath)
 	outputToLog("folder name " .. folder:getPath())
 	local folders = folder:getChildren()
-	outputToLog("number of children" .. #folders)
 	if #folders == 0 then  -- if we are int he lowest folder
 		relativeFolderName = string.gsub(folder:getPath(), rootFolderPath, "")
 		relativeFolderName = string.gsub(relativeFolderName, "\\", "/") -- OS sensitive solution?
 		relativeCollectionName = rootCollectionPath .. relativeFolderName
 		local syncCollection = CSHelpers.findOrCreateCollectionTree(context, relativeCollectionName, false)
-		CSSynchronise.CopyPhotosFromFolderToCollection(context, folder, syncCollection)
+		CSSynchronise.CopyPhotosFromFolderToCollection(context, folder, syncCollection, progresScope)
 	else -- else we recusively go deeper
 		for f = 1, #folders do
 			CSSynchronise.RecursiveFolderSync(context, folders[f], rootFolderPath, rootCollectionPath)

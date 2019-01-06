@@ -42,6 +42,7 @@ CSHelpers.findOrCreateCollectionTree = function(context, collection, isTopLevel)
 	for iCollection = 1, #collectionsNames do
 		name = collectionsNames[iCollection]
 		local isSet = isTopLevel or iCollection ~= #collectionsNames
+		LrTasks.yield()
 		catalog:withWriteAccessDo('creatingCollectionSet', function( context ) 
 			syncCollection = CSHelpers.getOrCreateCollectionOrSet(catalog, syncCollection, name, isSet)
 		end ) 
