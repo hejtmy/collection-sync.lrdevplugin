@@ -33,7 +33,7 @@ CSSynchronise.StartSync = function(rootFolder, rootCollection, publishService, r
 	end)
 end
 
-CSSynchronise.CopyPhotosFromFolder = function(context, folder, collection, publishService, publishCollection)
+CSSynchronise.CopyPhotosFromFolder = function(context, folder, collection, publishCollection)
 	local photos = folder:getPhotos(false) -- don't includeChildren
 	local total = #photos
 	local catalog = collection.catalog
@@ -48,7 +48,10 @@ CSSynchronise.CopyPhotosFromFolder = function(context, folder, collection, publi
 		folderProgressScope:setPortionComplete(completed, total)
 		folderProgressScope:setCaption("Updated " .. tostring(completed) .. " of " .. tostring(total) .. " photos")
 		catalog:withWriteAccessDo('copyingPhotosToCollection', function(context)
-			if photo:getRawMetadata('isVirtualCopy') ~= true then collection:addPhotos({photo}) end
+			if photo:getRawMetadata('isVirtualCopy') ~= true then 
+				collection:addPhotos({photo}) 
+				if publishCollection ~= nil then publishCollection:addPhotos({photo}) end
+			end
 			end,{timeout=5})
 		LrTasks.yield()
 	end
@@ -63,7 +66,7 @@ CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, ro
 		local relativePublishName = rootPublishPath .. relativeFolderName
 		local syncCollection = CSHelpers.findOrCreateCollectionTree(context, relativeCollectionName, false)
 		local publishCollection = CSHelpers.findOrCreatePublishTree(context, publishServiceName, relativePublishName, false)
-		CSSynchronise.CopyPhotosFromFolder(context, folder, syncCollection, progresScope, publishService, publishRoot )
+		CSSynchronise.CopyPhotosFromFolder(context, folder, syncCollection, publishCollection )
 	else -- else we recusively go deeper
 		for f = 1, #folders do
 			CSSynchronise.RecursiveFolderSync(context, folders[f], rootFolderPath, rootCollectionPath, publishServiceName, rootPublishPath)
