@@ -37,30 +37,21 @@ end
 CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, collection)
 	local photos = folder:getPhotos(false) -- don't includeChildren
 	local total = #photos
-	local completed = 0
 	local catalog = collection.catalog
-
 	local folderProgressScope = LrProgressScope{
-		title = "Copyting photos from folders" .. folder:getPath(),
+		title = "Copying photos from folders" .. folder:getPath(),
 		caption = "Updatting " .. total .. " photos." ,
 	}
-	for i = 1, total do
+	for completed = 1, total do
 		local photo = photos[i]
 		folderProgressScope:setPortionComplete(completed, total)
 		folderProgressScope:setCaption("Updated " .. tostring(completed) .. " of " .. tostring(total) .. " photos")
-		catalog:withWriteAccessDo('copyingPhotosToCollection', function()
-			-- removes virtual copies
-			if photo:getRawMetadata('isVirtualCopy') ~= true then collection:addPhotos(photo) end
-		end)
+		catalog:withWriteAccessDo('copyingPhotosToCollection', function(context)
+			if photo:getRawMetadata('isVirtualCopy') == false then collection:addPhotos({photo}) end
+			end,{timeout=5})
 		LrTasks.yield()
-		completed = completed + 1
-		outputToLog(completed)
 	end
 	folderProgressScope:done()
-end
-
-CSSynchronise.CopyPhotoProlongedAction = function(context, progress)
-
 end
 
 CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, rootCollectionPath)
