@@ -58,8 +58,6 @@ end
 CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, rootCollectionPath, publishServiceName, rootPublishPath)
 	local folders = folder:getChildren()
 	if #folders == 0 then  -- if we are int he lowest folder
-		outputToLog(folder:getPath())
-		outputToLog(rootFolderPath)
 		local relativeFolderName = CSHelpers.relativeFolderName(folder, rootFolderPath)
 		local relativeCollectionName = rootCollectionPath .. relativeFolderName
 		local relativePublishName = rootPublishPath .. relativeFolderName

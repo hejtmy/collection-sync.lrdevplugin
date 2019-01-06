@@ -13,7 +13,6 @@ CSHelpers = {}
 
 CSHelpers.findFolder = function(context, folder, recursive)
 	LrDialogs.attachErrorDialogToFunctionContext( context )
-	local catalog = import "LrApplication".activeCatalog()
 	local folders = catalog:getFolders()
 	folderArr = Helpers.mysplit(folder, '/')
 	local syncFolder = nil
@@ -58,17 +57,18 @@ end
 
 CSHelpers.findOrCreatePublishTree = function(context, publishServiceName, collectionPath, isTopLevel)
 	LrDialogs.attachErrorDialogToFunctionContext( context )
-	collectionsNames = Helpers.mysplit(collectionPath, '/')
-	local publishCollection = nil
 	-- Gets immediately collections in case we are in the topLevel
-	local service = CSHelpers.getPublishService(publishServiceName)
-	if service == nil then return nil end
+	local publishService = CSHelpers.getPublishService(context, publishServiceName)
+	if publishService == nil then return nil end
+	local collectionsNames = Helpers.mysplit(collectionPath, '/')
+	outputToLog(#collectionsNames)
+	local publishCollection = nil
 	for iCollection = 1, #collectionsNames do
-		name = collectionsNames[iCollection]
+		local name = collectionsNames[iCollection]
 		local isSet = isTopLevel or iCollection ~= #collectionsNames
 		LrTasks.yield()
 		catalog:withWriteAccessDo('creatingCollectionSet', function( context ) 
-			publishCollection = CSHelpers.getOrCreateCollectionOrSet(catalog, publishCollection, name, isSet)
+			publishCollection = CSHelpers.getOrCreatePublishCollectionOrSet(publishService, publishCollection, name, isSet)
 		end ) 
 	end
 	return publishCollection
@@ -86,9 +86,12 @@ CSHelpers.getOrCreateCollectionOrSet = function(catalog, parent, name, isSet)
 		end
 end
 
-CSHelpers.getOrCreatePublishCollectionOrSet = function(catalog, service, parent, name, isSet)
+CSHelpers.getOrCreatePublishCollectionOrSet = function(service, parent, name, isSet)
+	outputToLog(service)
+	outputToLog(parent)
+	outputToLog(name)
 	if isSet then 
-		return service:createPublishedCollectionSet(name, parent, true) 
+		return service:createPublishedCollectionSet(name, parent, true)
 	else 
 		return service:createPublishedCollection(name, parent, true) 
 	end
@@ -107,14 +110,16 @@ CSHelpers.getPublishingServices = function()
 	end)
 end
 
-CSHelpers.getPublishService = function(name)
-	LrTasks.startAsyncTask(function()
-		local services = catalog:getPublishServices()
-		for i = 1, #services do
-			local service = services[i]
-			outputToLog(service:getName())
-			if service:getName() == name then	return service end
+CSHelpers.getPublishService = function(context, name)
+	outputToLog("Trying to find" .. name)
+	local services = catalog:getPublishServices()
+	local service = nil
+	for i = 1, #services do
+		service = services[i]
+		if service:getName() == name then	
+			outputToLog("Service found")
+			break
 		end
-		return nil
-	end)
+	end
+	return service
 end
