@@ -44,7 +44,7 @@ CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, colle
 	}
 	folderProgressScope:setCancelable(true)
 	for completed = 1, total do
-		if folderProgressScope:isCanceled() break end
+		if folderProgressScope:isCanceled() then break end
 		local photo = photos[completed]
 		folderProgressScope:setPortionComplete(completed, total)
 		folderProgressScope:setCaption("Updated " .. tostring(completed) .. " of " .. tostring(total) .. " photos")
