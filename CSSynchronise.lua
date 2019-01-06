@@ -63,9 +63,12 @@ CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, ro
 	if #folders == 0 then  -- if we are int he lowest folder
 		local relativeFolderName = CSHelpers.relativeFolderName(folder, rootFolderPath)
 		local relativeCollectionName = rootCollectionPath .. relativeFolderName
-		local relativePublishName = rootPublishPath .. relativeFolderName
 		local syncCollection = CSHelpers.findOrCreateCollectionTree(context, relativeCollectionName, false)
-		local publishCollection = CSHelpers.findOrCreatePublishTree(context, publishServiceName, relativePublishName, false)
+		local publishCollection = nil
+		if rootPublishPath ~= nil then
+			local relativePublishName = rootPublishPath .. relativeFolderName
+			publishCollection = CSHelpers.findOrCreatePublishTree(context, publishServiceName, relativePublishName, false)
+		end
 		CSSynchronise.CopyPhotosFromFolder(context, folder, syncCollection, publishCollection )
 	else -- else we recusively go deeper
 		for f = 1, #folders do

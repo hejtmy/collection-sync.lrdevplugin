@@ -61,7 +61,10 @@ local function sectionsForTopOfDialog( f, propertyTable )
 		local services = CSHelpers.getPublishingServices()
 		for i = 1, #prefs.syncTrees do
 			local syncTree = prefs.syncTrees[i]
-			section[#section+1] = singleTree(syncTree, services, i)
+			if syncTree ~= nil then
+				if syncTree.rootFolder == nil then syncTree.rootFolder = "empty" end
+				section[#section+1] = singleTree(syncTree, services, i)
+			end
 		end
 		return section
 	end
