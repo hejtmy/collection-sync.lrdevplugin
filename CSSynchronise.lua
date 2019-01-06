@@ -43,11 +43,11 @@ CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, colle
 		caption = "Updatting " .. total .. " photos." ,
 	}
 	for completed = 1, total do
-		local photo = photos[i]
+		local photo = photos[completed]
 		folderProgressScope:setPortionComplete(completed, total)
 		folderProgressScope:setCaption("Updated " .. tostring(completed) .. " of " .. tostring(total) .. " photos")
 		catalog:withWriteAccessDo('copyingPhotosToCollection', function(context)
-			if photo:getRawMetadata('isVirtualCopy') == false then collection:addPhotos({photo}) end
+			if photo:getRawMetadata('isVirtualCopy') ~= true then collection:addPhotos({photo}) end
 			end,{timeout=5})
 		LrTasks.yield()
 	end
