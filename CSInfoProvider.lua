@@ -30,11 +30,19 @@ local function sectionsForTopOfDialog( f, propertyTable )
 					title = syncTree.rootCollection,
 					fill_horizontal = 1,
 				},
+				f:static_text {
+					title = syncTree.publishService,
+					fill_horizontal = 1,
+				},
+				f:static_text {
+					title = syncTree.rootPublish,
+					fill_horizontal = 1,
+				},
 				f:push_button {
 					title = LOC "$$$/CollectionSync/SyncButton=Sync now",
 					enabled = true,
 					action = function()
-						CSSynchronise.FolderToCollectionSync(syncTree.rootFolder, syncTree.rootCollection, 1)
+						CSSynchronise.StartSync(syncTree.rootFolder, syncTree.rootCollection, syncTree.publishService, syncTree.rootPublish, 1)
 					end,
 				},
 				f:push_button {

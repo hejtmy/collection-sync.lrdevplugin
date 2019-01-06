@@ -1,8 +1,8 @@
 local LrLogger = import 'LrLogger'
 local LrDialogs = import 'LrDialogs'
-local LrFunctionContext = import 'LrFunctionContext'
 local LrTasks = import 'LrTasks'
 local LrProgressScope = import 'LrProgressScope'
+local LrFunctionContext = import 'LrFunctionContext'
 
 require 'CSMessages.lua'
 require 'helpers.lua'
@@ -16,17 +16,16 @@ end
 
 CSSynchronise = {}
 
-CSSynchronise.FolderToCollectionSync = function(folder, collection, recursive)
+CSSynchronise.StartSync = function(rootFolder, rootCollection, publishService, rootPublish, recursive)
 	LrTasks.startAsyncTask(function()
 		LrFunctionContext.callWithContext( "showCustomDialogWithMultipleBind", function( context )
-			local syncFolder = CSHelpers.findFolder(context, folder, recursive)
+			local syncFolder = CSHelpers.findFolder(context, rootFolder, recursive)
 			-- needs to establish, if the folder is the top level
 			if syncFolder ~= nil then
 				if recursive then
-					outputToLog(syncFolder:getPath())
-					CSSynchronise.RecursiveFolderSync(context, syncFolder, syncFolder:getPath(), collection)
+					CSSynchronise.RecursiveFolderSync(context, syncFolder, syncFolder:getPath(), rootCollection, publishService, rootPublish)
 				else 
-					local syncCollection = CSHelpers.findOrCreateCollectionTree(context, collection, false)
+					local syncCollection = CSHelpers.findOrCreateCollectionTree(context, rootCollection, false)
 					CSSynchronise.CopyPhotosFromFolderToCollection(context, syncFolder, syncCollection)
 				end
 			end
@@ -34,7 +33,7 @@ CSSynchronise.FolderToCollectionSync = function(folder, collection, recursive)
 	end)
 end
 
-CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, collection)
+CSSynchronise.CopyPhotosFromFolder = function(context, folder, collection, publishService, publishCollection)
 	local photos = folder:getPhotos(false) -- don't includeChildren
 	local total = #photos
 	local catalog = collection.catalog
@@ -56,18 +55,20 @@ CSSynchronise.CopyPhotosFromFolderToCollection = function(context, folder, colle
 	folderProgressScope:done()
 end
 
-CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, rootCollectionPath)
-	outputToLog("folder name " .. folder:getPath())
+CSSynchronise.RecursiveFolderSync = function(context, folder, rootFolderPath, rootCollectionPath, publishServiceName, rootPublishPath)
 	local folders = folder:getChildren()
 	if #folders == 0 then  -- if we are int he lowest folder
-		relativeFolderName = string.gsub(folder:getPath(), rootFolderPath, "")
-		relativeFolderName = string.gsub(relativeFolderName, "\\", "/") -- OS sensitive solution?
-		relativeCollectionName = rootCollectionPath .. relativeFolderName
+		outputToLog(folder:getPath())
+		outputToLog(rootFolderPath)
+		local relativeFolderName = CSHelpers.relativeFolderName(folder, rootFolderPath)
+		local relativeCollectionName = rootCollectionPath .. relativeFolderName
+		local relativePublishName = rootPublishPath .. relativeFolderName
 		local syncCollection = CSHelpers.findOrCreateCollectionTree(context, relativeCollectionName, false)
-		CSSynchronise.CopyPhotosFromFolderToCollection(context, folder, syncCollection, progresScope)
+		local publishCollection = CSHelpers.findOrCreatePublishTree(context, publishServiceName, relativePublishName, false)
+		CSSynchronise.CopyPhotosFromFolder(context, folder, syncCollection, progresScope, publishService, publishRoot )
 	else -- else we recusively go deeper
 		for f = 1, #folders do
-			CSSynchronise.RecursiveFolderSync(context, folders[f], rootFolderPath, rootCollectionPath)
+			CSSynchronise.RecursiveFolderSync(context, folders[f], rootFolderPath, rootCollectionPath, publishServiceName, rootPublishPath)
 		end
 	end
 end
