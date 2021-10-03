@@ -59,6 +59,8 @@ local function sectionsForTopOfDialog( f, propertyTable )
 	local includedTrees = function() -- doesn't work
 		section = {}
 		local services = CSHelpers.getPublishingServices()
+		if prefs.syncTrees == nil then return section end
+		if #prefs.syncTrees < 1 then return section end
 		for i = 1, #prefs.syncTrees do
 			local syncTree = prefs.syncTrees[i]
 			if syncTree ~= nil then
